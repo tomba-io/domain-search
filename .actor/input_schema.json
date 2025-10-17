@@ -1,0 +1,127 @@
+{
+    "title": "Tomba Domain Search Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "tombaApiKey": {
+            "title": "Tomba API Key",
+            "type": "string",
+            "description": "Your Tomba API key (starts with 'ta_')",
+            "isSecret": true,
+            "editor": "textfield"
+        },
+        "tombaApiSecret": {
+            "title": "Tomba API Secret",
+            "type": "string",
+            "description": "Your Tomba API secret (starts with 'ts_')",
+            "isSecret": true,
+            "editor": "textfield"
+        },
+        "domains": {
+            "title": "Domains",
+            "type": "array",
+            "description": "List of domains to search for email addresses",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "editor": "stringList"
+        },
+        "maxEmailsPerDomain": {
+            "title": "Max Emails Per Domain",
+            "type": "integer",
+            "description": "Maximum number of emails to find per domain (applies to domain search)",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+        },
+        "includeCompanyInfo": {
+            "title": "Include Company Info",
+            "type": "boolean",
+            "description": "Include additional company information when available",
+            "default": true
+        },
+        "outputFormat": {
+            "title": "Output Format",
+            "type": "string",
+            "description": "Format of the output data",
+            "enum": ["detailed", "simple"],
+            "enumTitles": ["Detailed", "Simple"],
+            "default": "detailed"
+        },
+        "page": {
+            "title": "Page Number",
+            "type": "integer",
+            "description": "Page number for pagination",
+            "minimum": 1,
+            "default": 1
+        },
+        "limit": {
+            "title": "Results Limit",
+            "type": "string",
+            "description": "Specifies the max number of email addresses to return",
+            "enum": ["10", "20", "50"],
+            "enumTitles": ["10 emails", "20 emails", "50 emails"],
+            "default": "10"
+        },
+        "department": {
+            "title": "Department Filter",
+            "type": "string",
+            "description": "Get only email addresses for people working in the selected department",
+            "enum": [
+                "engineering",
+                "sales",
+                "finance",
+                "hr",
+                "it",
+                "marketing",
+                "operations",
+                "management",
+                "executive",
+                "legal",
+                "support",
+                "communication",
+                "software",
+                "security",
+                "pr",
+                "warehouse",
+                "diversity",
+                "administrative",
+                "facilities",
+                "accounting"
+            ],
+            "enumTitles": [
+                "Engineering",
+                "Sales",
+                "Finance",
+                "HR",
+                "IT",
+                "Marketing",
+                "Operations",
+                "Management",
+                "Executive",
+                "Legal",
+                "Support",
+                "Communication",
+                "Software",
+                "Security",
+                "PR",
+                "Warehouse",
+                "Diversity",
+                "Administrative",
+                "Facilities",
+                "Accounting"
+            ]
+        },
+        "country": {
+            "title": "Country Filter",
+            "type": "string",
+            "description": "Two-letter country code to filter email addresses (e.g., 'US', 'UK', 'CA')",
+            "maxLength": 2,
+            "minLength": 2,
+            "pattern": "^[A-Z]{2}$",
+            "editor": "textfield"
+        }
+    },
+    "required": ["tombaApiKey", "tombaApiSecret", "domains"]
+}

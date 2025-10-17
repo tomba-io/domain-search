@@ -1,0 +1,448 @@
+{
+    "actorSpecification": 1,
+    "fields": {
+        "type": "object",
+        "properties": {
+            "domain": {
+                "type": "string",
+                "description": "The domain that was searched"
+            },
+            "organization": {
+                "type": "object",
+                "description": "Organization information for the domain",
+                "properties": {
+                    "website_url": {
+                        "type": "string",
+                        "description": "Company website URL"
+                    },
+                    "organization": {
+                        "type": "string",
+                        "description": "Company name"
+                    },
+                    "location": {
+                        "type": "object",
+                        "description": "Company location details",
+                        "properties": {
+                            "country": {
+                                "type": "string",
+                                "description": "Country code"
+                            },
+                            "city": {
+                                "type": "string",
+                                "description": "City name"
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "State/Province"
+                            },
+                            "street_address": {
+                                "type": "string",
+                                "description": "Street address"
+                            },
+                            "postal_code": {
+                                "type": "string",
+                                "description": "Postal/ZIP code"
+                            }
+                        }
+                    },
+                    "social_links": {
+                        "type": "object",
+                        "description": "Company social media links",
+                        "properties": {
+                            "twitter_url": {
+                                "type": "string",
+                                "description": "Twitter profile URL"
+                            },
+                            "facebook_url": {
+                                "type": "string",
+                                "description": "Facebook page URL"
+                            },
+                            "linkedin_url": {
+                                "type": "string",
+                                "description": "LinkedIn company page URL"
+                            }
+                        }
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "description": "Company phone number"
+                    },
+                    "industries": {
+                        "type": "string",
+                        "description": "Company industry"
+                    },
+                    "founded": {
+                        "type": "string",
+                        "description": "Year company was founded"
+                    },
+                    "company_size": {
+                        "type": "string",
+                        "description": "Company size range"
+                    },
+                    "company_type": {
+                        "type": "string",
+                        "description": "Type of company (publicly traded, privately held, etc.)"
+                    },
+                    "revenue": {
+                        "type": "string",
+                        "description": "Company revenue range"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Company description"
+                    },
+                    "whois": {
+                        "type": "object",
+                        "description": "Domain WHOIS information",
+                        "properties": {
+                            "registrar_name": {
+                                "type": "string",
+                                "description": "Domain registrar"
+                            },
+                            "created_date": {
+                                "type": "string",
+                                "description": "Domain creation date"
+                            }
+                        }
+                    }
+                }
+            },
+            "emails": {
+                "type": "array",
+                "description": "Array of email addresses found for the domain",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "email": {
+                            "type": "string",
+                            "description": "Email address"
+                        },
+                        "first_name": {
+                            "type": "string",
+                            "description": "First name of the person"
+                        },
+                        "last_name": {
+                            "type": "string",
+                            "description": "Last name of the person"
+                        },
+                        "position": {
+                            "type": "string",
+                            "description": "Job position"
+                        },
+                        "department": {
+                            "type": "string",
+                            "description": "Department"
+                        },
+                        "verification": {
+                            "type": "object",
+                            "description": "Email verification status"
+                        },
+                        "sources": {
+                            "type": "array",
+                            "description": "Sources where the email was found"
+                        }
+                    }
+                }
+            },
+            "meta": {
+                "type": "object",
+                "description": "Metadata about the search results"
+            }
+        }
+    },
+    "views": {
+        "overview": {
+            "title": "Domain Search Results",
+            "description": "Overview of email addresses found for each domain",
+            "transformation": {
+                "fields": [
+                    "domain",
+                    "organization.website_url",
+                    "organization.organization",
+                    "organization.location.country",
+                    "organization.location.city",
+                    "organization.location.state",
+                    "organization.industries",
+                    "organization.founded",
+                    "organization.company_size",
+                    "organization.company_type",
+                    "organization.revenue",
+                    "organization.phone_number",
+                    "organization.description",
+                    "organization.social_links.linkedin_url",
+                    "organization.social_links.twitter_url",
+                    "emails",
+                    "meta.total",
+                    "meta.params"
+                ],
+                "flatten": ["organization", "organization.location", "organization.social_links", "meta"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "domain": {
+                        "label": "Domain",
+                        "format": "text"
+                    },
+                    "organization.website_url": {
+                        "label": "Website",
+                        "format": "url"
+                    },
+                    "organization.organization": {
+                        "label": "Company Name",
+                        "format": "text"
+                    },
+                    "organization.location.country": {
+                        "label": "Country",
+                        "format": "text"
+                    },
+                    "organization.location.city": {
+                        "label": "City",
+                        "format": "text"
+                    },
+                    "organization.location.state": {
+                        "label": "State",
+                        "format": "text"
+                    },
+                    "organization.industries": {
+                        "label": "Industry",
+                        "format": "text"
+                    },
+                    "organization.founded": {
+                        "label": "Founded",
+                        "format": "text"
+                    },
+                    "organization.company_size": {
+                        "label": "Company Size",
+                        "format": "text"
+                    },
+                    "organization.company_type": {
+                        "label": "Company Type",
+                        "format": "text"
+                    },
+                    "organization.revenue": {
+                        "label": "Revenue",
+                        "format": "text"
+                    },
+                    "organization.phone_number": {
+                        "label": "Phone",
+                        "format": "text"
+                    },
+                    "organization.description": {
+                        "label": "Description",
+                        "format": "text"
+                    },
+                    "organization.social_links.linkedin_url": {
+                        "label": "LinkedIn",
+                        "format": "url"
+                    },
+                    "organization.social_links.twitter_url": {
+                        "label": "Twitter",
+                        "format": "url"
+                    },
+                    "emails": {
+                        "label": "Email Results",
+                        "format": "array"
+                    },
+                    "meta.total": {
+                        "label": "Total Found",
+                        "format": "number"
+                    },
+                    "meta.params": {
+                        "label": "Search Parameters",
+                        "format": "object"
+                    }
+                }
+            }
+        },
+        "emails": {
+            "title": "Individual Emails",
+            "description": "Detailed view of individual email addresses",
+            "transformation": {
+                "fields": [
+                    "domain",
+                    "organization.organization",
+                    "organization.location.country",
+                    "organization.industries",
+                    "emails.email",
+                    "emails.first_name",
+                    "emails.last_name",
+                    "emails.position",
+                    "emails.department",
+                    "emails.seniority",
+                    "emails.verification.status",
+                    "emails.sources"
+                ],
+                "unwind": ["emails"],
+                "flatten": ["organization", "organization.location"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "domain": {
+                        "label": "Domain",
+                        "format": "text"
+                    },
+                    "organization.organization": {
+                        "label": "Company",
+                        "format": "text"
+                    },
+                    "organization.location.country": {
+                        "label": "Country",
+                        "format": "text"
+                    },
+                    "organization.industries": {
+                        "label": "Industry",
+                        "format": "text"
+                    },
+                    "email": {
+                        "label": "Email",
+                        "format": "text"
+                    },
+                    "first_name": {
+                        "label": "First Name",
+                        "format": "text"
+                    },
+                    "last_name": {
+                        "label": "Last Name",
+                        "format": "text"
+                    },
+                    "position": {
+                        "label": "Position",
+                        "format": "text"
+                    },
+                    "department": {
+                        "label": "Department",
+                        "format": "text"
+                    },
+                    "seniority": {
+                        "label": "Seniority",
+                        "format": "text"
+                    },
+                    "verification.status": {
+                        "label": "Verification",
+                        "format": "text"
+                    },
+                    "sources": {
+                        "label": "Sources",
+                        "format": "array"
+                    }
+                }
+            }
+        },
+        "company": {
+            "title": "Company Information",
+            "description": "Detailed company information for each domain",
+            "transformation": {
+                "fields": [
+                    "domain",
+                    "organization.website_url",
+                    "organization.organization",
+                    "organization.location.country",
+                    "organization.location.city",
+                    "organization.location.state",
+                    "organization.location.street_address",
+                    "organization.location.postal_code",
+                    "organization.industries",
+                    "organization.founded",
+                    "organization.company_size",
+                    "organization.company_type",
+                    "organization.revenue",
+                    "organization.phone_number",
+                    "organization.description",
+                    "organization.social_links.linkedin_url",
+                    "organization.social_links.twitter_url",
+                    "organization.social_links.facebook_url",
+                    "organization.whois.registrar_name",
+                    "organization.whois.created_date"
+                ],
+                "flatten": ["organization", "organization.location", "organization.social_links", "organization.whois"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "domain": {
+                        "label": "Domain",
+                        "format": "text"
+                    },
+                    "organization.website_url": {
+                        "label": "Website",
+                        "format": "url"
+                    },
+                    "organization.organization": {
+                        "label": "Company Name",
+                        "format": "text"
+                    },
+                    "organization.description": {
+                        "label": "Description",
+                        "format": "text"
+                    },
+                    "organization.industries": {
+                        "label": "Industry",
+                        "format": "text"
+                    },
+                    "organization.founded": {
+                        "label": "Founded",
+                        "format": "text"
+                    },
+                    "organization.company_size": {
+                        "label": "Company Size",
+                        "format": "text"
+                    },
+                    "organization.company_type": {
+                        "label": "Company Type",
+                        "format": "text"
+                    },
+                    "organization.revenue": {
+                        "label": "Revenue",
+                        "format": "text"
+                    },
+                    "organization.location.country": {
+                        "label": "Country",
+                        "format": "text"
+                    },
+                    "organization.location.city": {
+                        "label": "City",
+                        "format": "text"
+                    },
+                    "organization.location.state": {
+                        "label": "State/Province",
+                        "format": "text"
+                    },
+                    "organization.location.street_address": {
+                        "label": "Address",
+                        "format": "text"
+                    },
+                    "organization.location.postal_code": {
+                        "label": "Postal Code",
+                        "format": "text"
+                    },
+                    "organization.phone_number": {
+                        "label": "Phone",
+                        "format": "text"
+                    },
+                    "organization.social_links.linkedin_url": {
+                        "label": "LinkedIn",
+                        "format": "url"
+                    },
+                    "organization.social_links.twitter_url": {
+                        "label": "Twitter",
+                        "format": "url"
+                    },
+                    "organization.social_links.facebook_url": {
+                        "label": "Facebook",
+                        "format": "url"
+                    },
+                    "organization.whois.registrar_name": {
+                        "label": "Domain Registrar",
+                        "format": "text"
+                    },
+                    "organization.whois.created_date": {
+                        "label": "Domain Created",
+                        "format": "text"
+                    }
+                }
+            }
+        }
+    }
+}

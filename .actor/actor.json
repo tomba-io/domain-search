@@ -1,0 +1,16 @@
+{
+    "actorSpecification": 1,
+    "name": "domain-search",
+    "title": "Tomba Domain Search",
+    "description": "An Apify Actor that uses Tomba API to find email addresses associated with given domains.",
+    "version": "0.2",
+    "buildTag": "latest",
+    "meta": {
+        "templateId": "ts-empty"
+    },
+    "dockerfile": "../Dockerfile",
+    "input": "./input_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    }
+}
