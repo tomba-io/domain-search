@@ -59,30 +59,148 @@ The Actor accepts the following input parameters:
 
 ## Output
 
-The Actor outputs an array of email results with the following structure:
+The Actor provides three comprehensive data views for analyzing email and company information:
+
+### Overview View - Domain Search Results
+
+Complete overview of email addresses found for each domain with full company information:
 
 ```json
 {
-    "domain": "example.com",
-    "email": "john.doe@example.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "position": "Software Engineer",
-    "companyName": "Example Corp",
-    "sources": [
+    "domain": "stripe.com",
+    "organization.website_url": "stripe.com",
+    "organization.organization": "Stripe",
+    "organization.location.country": "US",
+    "organization.location.city": "San Francisco",
+    "organization.location.state": "California",
+    "organization.industries": "Information Technology and Services",
+    "organization.founded": "2010",
+    "organization.company_size": "5K-10K",
+    "organization.company_type": "privately held",
+    "organization.revenue": "$100M-$250M",
+    "organization.phone_number": "+1 415 298 5539",
+    "organization.description": "stripe is a payment processing platform...",
+    "organization.social_links.linkedin_url": "https://www.linkedin.com/company/stripe",
+    "organization.social_links.twitter_url": "https://twitter.com/stripe",
+    "emails": [
         {
-            "uri": "https://example.com/about",
-            "website_url": "https://example.com",
-            "extracted_on": "2023-01-01T00:00:00Z",
-            "last_seen_on": "2023-01-01T00:00:00Z"
+            "email": "jane@stripe.com",
+            "first_name": "Jane",
+            "last_name": "Natoli",
+            "position": "Financial Crimes Analyst",
+            "department": "finance",
+            "verification": {
+                "status": "valid",
+                "date": "2025-09-13T00:00:00+02:00"
+            }
         }
     ],
-    "verification": {
-        "date": "2023-01-01T00:00:00Z",
-        "status": "valid"
-    }
+    "meta.total": 20,
+    "meta.params": {}
 }
 ```
+
+### Individual Emails View - Detailed Email Information
+
+Flattened view showing each email address with personal and professional details:
+
+```json
+{
+    "domain": "stripe.com",
+    "organization.organization": "Stripe",
+    "organization.location.country": "US",
+    "organization.industries": "Information Technology and Services",
+    "email": "jane@stripe.com",
+    "first_name": "Jane",
+    "last_name": "Natoli",
+    "full_name": "Jane Natoli",
+    "position": "Financial Crimes Analyst",
+    "department": "finance",
+    "seniority": "senior",
+    "type": "personal",
+    "country": "US",
+    "linkedin": "https://www.linkedin.com/in/jane-natoli-52a8a0a",
+    "score": 100,
+    "verification.status": "valid",
+    "verification.date": "2025-09-13T00:00:00+02:00",
+    "sources": [
+        {
+            "uri": "https://stripe.com/docs/cli",
+            "website_url": "stripe.com",
+            "extracted_on": "2022-03-08T01:23:16+01:00",
+            "last_seen_on": "2022-08-04T09:42:10+02:00",
+            "still_on_page": true
+        }
+    ]
+}
+```
+
+### Company Information View - Business Intelligence
+
+Comprehensive company profiles with all available business data:
+
+```json
+{
+    "domain": "stripe.com",
+    "organization.website_url": "stripe.com",
+    "organization.organization": "Stripe",
+    "organization.description": "stripe is a payment processing platform enabling businesses to accept payments and manage online transactions.",
+    "organization.industries": "Information Technology and Services",
+    "organization.founded": "2010",
+    "organization.company_size": "5K-10K",
+    "organization.company_type": "privately held",
+    "organization.revenue": "$100M-$250M",
+    "organization.location.country": "US",
+    "organization.location.city": "San Francisco",
+    "organization.location.state": "California",
+    "organization.location.street_address": "354 oyster point blvd",
+    "organization.location.postal_code": "94107",
+    "organization.phone_number": "+1 415 298 5539",
+    "organization.social_links.linkedin_url": "https://www.linkedin.com/company/stripe",
+    "organization.social_links.twitter_url": "https://twitter.com/stripe",
+    "organization.social_links.facebook_url": "https://www.facebook.com/stripehq",
+    "organization.whois.registrar_name": "safenames ltd.",
+    "organization.whois.created_date": "1995-09-12T06:00:00+02:00"
+}
+```
+
+### Key Data Fields
+
+**Email Information:**
+
+- `email`: Email address
+- `first_name`, `last_name`, `full_name`: Personal names
+- `position`: Job title
+- `department`: Department (engineering, sales, finance, etc.)
+- `seniority`: Job level (senior, junior, executive, etc.)
+- `type`: Email type (personal, generic, etc.)
+- `country`: Person's country
+- `linkedin`: LinkedIn profile URL
+- `score`: Confidence score (0-100)
+- `verification.status`: Email validity (valid, invalid, risky, etc.)
+- `verification.date`: When email was last verified
+
+**Company Information:**
+
+- `organization.organization`: Company name
+- `organization.description`: Business description
+- `organization.industries`: Industry classification
+- `organization.founded`: Year established
+- `organization.company_size`: Employee count range
+- `organization.company_type`: Business type (privately held, public, etc.)
+- `organization.revenue`: Revenue range
+- `organization.location.*`: Full address details
+- `organization.social_links.*`: Social media profiles
+- `organization.whois.*`: Domain registration details
+
+**Source Information:**
+
+- `sources`: Array of where emails were found
+    - `uri`: Specific webpage URL
+    - `website_url`: Main website
+    - `extracted_on`: Discovery date
+    - `last_seen_on`: Last verification date
+    - `still_on_page`: Current availability status
 
 ## Getting Started
 
