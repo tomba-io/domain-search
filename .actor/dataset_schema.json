@@ -12,11 +12,11 @@
                 "description": "Organization information for the domain",
                 "properties": {
                     "website_url": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Company website URL"
                     },
                     "organization": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Company name"
                     },
                     "location": {
@@ -24,23 +24,23 @@
                         "description": "Company location details",
                         "properties": {
                             "country": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "Country code"
                             },
                             "city": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "City name"
                             },
                             "state": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "State/Province"
                             },
                             "street_address": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "Street address"
                             },
                             "postal_code": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "Postal/ZIP code"
                             }
                         }
@@ -50,45 +50,45 @@
                         "description": "Company social media links",
                         "properties": {
                             "twitter_url": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "Twitter profile URL"
                             },
                             "facebook_url": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "Facebook page URL"
                             },
                             "linkedin_url": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "LinkedIn company page URL"
                             }
                         }
                     },
                     "phone_number": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Company phone number"
                     },
                     "industries": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Company industry"
                     },
                     "founded": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Year company was founded"
                     },
                     "company_size": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Company size range"
                     },
                     "company_type": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Type of company (publicly traded, privately held, etc.)"
                     },
                     "revenue": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Company revenue range"
                     },
                     "description": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Company description"
                     },
                     "whois": {
@@ -96,11 +96,11 @@
                         "description": "Domain WHOIS information",
                         "properties": {
                             "registrar_name": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "Domain registrar"
                             },
                             "created_date": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "description": "Domain creation date"
                             }
                         }
@@ -118,35 +118,116 @@
                             "description": "Email address"
                         },
                         "first_name": {
-                            "type": "string",
+                            "type": ["string", "null"],
                             "description": "First name of the person"
                         },
                         "last_name": {
-                            "type": "string",
+                            "type": ["string", "null"],
                             "description": "Last name of the person"
                         },
                         "position": {
-                            "type": "string",
+                            "type": ["string", "null"],
                             "description": "Job position"
                         },
                         "department": {
-                            "type": "string",
+                            "type": ["string", "null"],
                             "description": "Department"
+                        },
+                        "full_name": {
+                            "type": ["string", "null"],
+                            "description": "Full name of the person"
+                        },
+                        "gender": {
+                            "type": ["string", "null"],
+                            "description": "Gender of the person"
+                        },
+                        "phone_number": {
+                            "type": ["boolean", "string", "null"],
+                            "description": "Whether person has phone number available"
+                        },
+                        "type": {
+                            "type": ["string", "null"],
+                            "description": "Email type (personal, generic, etc.)"
+                        },
+                        "country": {
+                            "type": ["string", "null"],
+                            "description": "Country of the person"
+                        },
+                        "seniority": {
+                            "type": ["string", "null"],
+                            "description": "Seniority level"
+                        },
+                        "twitter": {
+                            "type": ["string", "null"],
+                            "description": "Twitter profile URL"
+                        },
+                        "linkedin": {
+                            "type": ["string", "null"],
+                            "description": "LinkedIn profile URL"
+                        },
+                        "score": {
+                            "type": ["number", "null"],
+                            "description": "Confidence score for the email"
                         },
                         "verification": {
                             "type": "object",
-                            "description": "Email verification status"
+                            "description": "Email verification status",
+                            "properties": {
+                                "date": {
+                                    "type": ["string", "null"],
+                                    "description": "Verification date"
+                                },
+                                "status": {
+                                    "type": ["string", "null"],
+                                    "description": "Verification status (valid, invalid, etc.)"
+                                }
+                            }
                         },
                         "sources": {
                             "type": "array",
-                            "description": "Sources where the email was found"
+                            "description": "Sources where the email was found",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "uri": {
+                                        "type": ["string", "null"],
+                                        "description": "Source URI"
+                                    },
+                                    "website_url": {
+                                        "type": ["string", "null"],
+                                        "description": "Website URL where found"
+                                    },
+                                    "extracted_on": {
+                                        "type": ["string", "null"],
+                                        "description": "Extraction date"
+                                    },
+                                    "last_seen_on": {
+                                        "type": ["string", "null"],
+                                        "description": "Last seen date"
+                                    },
+                                    "still_on_page": {
+                                        "type": ["boolean", "null"],
+                                        "description": "Whether still on page"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             },
             "meta": {
                 "type": "object",
-                "description": "Metadata about the search results"
+                "description": "Metadata about the search results",
+                "properties": {
+                    "total": {
+                        "type": ["number", "null"],
+                        "description": "Total number of emails found"
+                    },
+                    "params": {
+                        "type": "object",
+                        "description": "Search parameters used"
+                    }
+                }
             }
         }
     },
@@ -259,40 +340,14 @@
             "title": "Individual Emails",
             "description": "Detailed view of individual email addresses",
             "transformation": {
-                "fields": [
-                    "domain",
-                    "organization.organization",
-                    "organization.location.country",
-                    "organization.industries",
-                    "emails.email",
-                    "emails.first_name",
-                    "emails.last_name",
-                    "emails.position",
-                    "emails.department",
-                    "emails.seniority",
-                    "emails.verification.status",
-                    "emails.sources"
-                ],
-                "unwind": ["emails"],
-                "flatten": ["organization", "organization.location"]
+                "fields": ["domain", "emails"],
+                "unwind": ["emails"]
             },
             "display": {
                 "component": "table",
                 "properties": {
                     "domain": {
                         "label": "Domain",
-                        "format": "text"
-                    },
-                    "organization.organization": {
-                        "label": "Company",
-                        "format": "text"
-                    },
-                    "organization.location.country": {
-                        "label": "Country",
-                        "format": "text"
-                    },
-                    "organization.industries": {
-                        "label": "Industry",
                         "format": "text"
                     },
                     "email": {
@@ -307,6 +362,10 @@
                         "label": "Last Name",
                         "format": "text"
                     },
+                    "full_name": {
+                        "label": "Full Name",
+                        "format": "text"
+                    },
                     "position": {
                         "label": "Position",
                         "format": "text"
@@ -319,9 +378,25 @@
                         "label": "Seniority",
                         "format": "text"
                     },
-                    "verification.status": {
-                        "label": "Verification",
+                    "type": {
+                        "label": "Email Type",
                         "format": "text"
+                    },
+                    "country": {
+                        "label": "Person Country",
+                        "format": "text"
+                    },
+                    "linkedin": {
+                        "label": "LinkedIn",
+                        "format": "url"
+                    },
+                    "score": {
+                        "label": "Confidence Score",
+                        "format": "number"
+                    },
+                    "verification": {
+                        "label": "Verification",
+                        "format": "object"
                     },
                     "sources": {
                         "label": "Sources",
