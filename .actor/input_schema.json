@@ -6,14 +6,14 @@
         "tombaApiKey": {
             "title": "Tomba API Key",
             "type": "string",
-            "description": "Your Tomba API key (starts with 'ta_')",
+            "description": "Your Tomba API key (ta_xxxx). Get it from https://app.tomba.io/api",
             "isSecret": true,
             "editor": "textfield"
         },
         "tombaApiSecret": {
             "title": "Tomba API Secret",
             "type": "string",
-            "description": "Your Tomba API secret (starts with 'ts_')",
+            "description": "Your Tomba secret key (ts_xxxx). Get it from https://app.tomba.io/api",
             "isSecret": true,
             "editor": "textfield"
         },
