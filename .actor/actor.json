@@ -3,7 +3,7 @@
     "name": "domain-search",
     "title": "Tomba Domain Search",
     "description": "An Apify Actor that uses Tomba API to find email addresses associated with given domains.",
-    "version": "0.2",
+    "version": "0.8",
     "buildTag": "latest",
     "meta": {
         "templateId": "ts-empty"
