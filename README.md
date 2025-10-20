@@ -1,53 +1,95 @@
 # Tomba Domain Search Actor
 
-An Apify Actor that uses the Tomba API to find email addresses associated with domains. This Actor specializes in domain-wide email discovery to help you find contact information for any domain.
+[![Actor](https://img.shields.io/badge/Apify-Actor-blue)](https://apify.com/actors)
+[![Tomba API](https://img.shields.io/badge/Tomba-API-green)](https://tomba.io)
+[![Rate Limit](https://img.shields.io/badge/Rate%20Limit-15%2Fsec-orange)](https://tomba.io/api)
 
-## Features
+A powerful Apify Actor that uses the **Tomba Domain Search API** to find email addresses associated with company domains. Perfect for sales teams, marketers, and researchers who need to discover contact information and build targeted email lists for lead generation and outreach campaigns.
 
-- 🔍 **Domain Search**: Find all email addresses associated with a domain
-- 🎯 **Advanced Filtering**: Filter by department, country, and pagination support
-- 📈 **Flexible Limits**: Choose between 10, 20, or 50 results per domain
-- 🏢 **Company Information**: Optionally include company details
-- ⚡ **Rate Limiting**: Built-in delays to respect API limits (15 requests/second max)
-- 📊 **Comprehensive Results**: Detailed email information including verification status and sources
-- 🛡️ **Error Handling**: Robust error handling with detailed logging
-- 🚀 **High Performance**: Efficient processing of multiple domains with automatic rate managementl Finder Actor
+## Key Features
 
-## Input
+- **Domain-Wide Email Discovery**: Find all email addresses associated with any company domain
+- **Advanced Filtering**: Filter by department, country, seniority, and job roles
+- **Comprehensive Contact Data**: Personal details, job titles, verification status, and LinkedIn profiles
+- **Company Intelligence**: Business information, location, revenue, and social media profiles
+- **Flexible Results**: Choose between 10, 20, or 50 results per domain with pagination support
+- **Email Verification**: Real-time email validation and deliverability status
+- **Rate Limited**: Respects Tomba's 15 requests per second limit with built-in delays
+- **Source Tracking**: Detailed information about where emails were discovered
+- **Error Handling**: Robust error handling with detailed logging
 
-The Actor accepts the following input parameters:
+## How it works
+
+The Actor leverages Tomba's powerful Domain Search API to discover email addresses and gather comprehensive contact information:
+
+### Process Flow
+
+1. **Authentication**: Connects to Tomba API using your credentials
+2. **Domain Processing**: Searches each domain for email addresses with specified filters
+3. **Data Enrichment**: Gathers personal details, job information, and verification status
+4. **Company Intelligence**: Collects business information and social profiles
+5. **Rate Management**: Automatically handles 15 requests/second limit with delays
+6. **Data Storage**: Saves results to Apify dataset with multiple view formats
+
+### What You Get
+
+For each domain, you'll receive:
+
+- **Email Discovery**: Complete list of email addresses with personal and professional details
+- **Contact Information**: Names, job titles, departments, seniority levels, and LinkedIn profiles
+- **Email Verification**: Validation status, confidence scores, and verification dates
+- **Company Profiles**: Business details, location, revenue, employee count, and social media
+- **Source Intelligence**: Where emails were found, discovery dates, and current availability
+- **Industry Insights**: Company classification, founding information, and business type
+
+## Quick Start
+
+### Prerequisites
+
+1. **Tomba Account**: Sign up at [Tomba.io](https://app.tomba.io/api) to get your API credentials
+
+### Getting Your API Keys
+
+1. Visit [Tomba API Dashboard](https://app.tomba.io/api)
+2. Copy your **API Key** (starts with `ta_`)
+3. Copy your **Secret Key** (starts with `ts_`)
+
+## Input Configuration
 
 ### Required Parameters
 
-- **Tomba API Key** (`tombaApiKey`): Your Tomba API key (starts with 'ta\_')
-- **Tomba API Secret** (`tombaApiSecret`): Your Tomba API secret (starts with 'ts\_')
-- **Domains** (`domains`): Array of domains to search for email addresses
+| Parameter        | Type     | Description                     |
+| ---------------- | -------- | ------------------------------- |
+| `tombaApiKey`    | `string` | Your Tomba API key (ta_xxxx)    |
+| `tombaApiSecret` | `string` | Your Tomba secret key (ts_xxxx) |
+| `domains`        | `array`  | Array of domains to search      |
 
 ### Optional Parameters
 
-- **Email Finding Mode** (`emailFindingMode`): Search mode (currently only "domain" is supported)
-- **Max Emails Per Domain** (`maxEmailsPerDomain`): Maximum emails to find per domain (1-100, default: 10)
-- **Include Company Info** (`includeCompanyInfo`): Include company information when available (default: true)
-- **Output Format** (`outputFormat`): Data format - `detailed` or `simple` (default: detailed)
+| Parameter            | Type      | Default      | Description                                        |
+| -------------------- | --------- | ------------ | -------------------------------------------------- |
+| `emailFindingMode`   | `string`  | `"domain"`   | Search mode (currently only "domain" is supported) |
+| `maxEmailsPerDomain` | `number`  | `10`         | Maximum emails to find per domain (1-100)          |
+| `includeCompanyInfo` | `boolean` | `true`       | Include company information when available         |
+| `outputFormat`       | `string`  | `"detailed"` | Data format - `detailed` or `simple`               |
+| `page`               | `number`  | `1`          | Page number for pagination                         |
+| `limit`              | `string`  | `"10"`       | Max emails per domain (`"10"`, `"20"`, or `"50"`)  |
+| `department`         | `string`  | -            | Filter by department (see available options below) |
+| `country`            | `string`  | -            | Two-letter country code filter (e.g., "US", "UK")  |
 
-### Domain Search Query Parameters
+### Department Filter Options
 
-- **Page** (`page`): Page number for pagination (default: 1)
-- **Limit** (`limit`): Max number of email addresses to return per domain
-    - Options: `"10"`, `"20"`, `"50"` (default: `"10"`)
-- **Department** (`department`): Filter emails by department
-    - Options: `engineering`, `sales`, `finance`, `hr`, `it`, `marketing`, `operations`, `management`, `executive`, `legal`, `support`, `communication`, `software`, `security`, `pr`, `warehouse`, `diversity`, `administrative`, `facilities`, `accounting`
-- **Country** (`country`): Two-letter country code filter (e.g., "US", "UK", "CA")
+Available department filters: `engineering`, `sales`, `finance`, `hr`, `it`, `marketing`, `operations`, `management`, `executive`, `legal`, `support`, `communication`, `software`, `security`, `pr`, `warehouse`, `diversity`, `administrative`, `facilities`, `accounting`
 
 ### Example Input
 
 ```json
 {
-    "tombaApiKey": "ta_xxxx",
-    "tombaApiSecret": "ts_xxxx",
-    "domains": ["stripe.com", "google.com"],
+    "tombaApiKey": "ta_xxxxxxxxxxxxxxxxxxxx",
+    "tombaApiSecret": "ts_xxxxxxxxxxxxxxxxxxxx",
+    "domains": ["stripe.com", "google.com", "tomba.io"],
     "emailFindingMode": "domain",
-    "maxEmailsPerDomain": 10,
+    "maxEmailsPerDomain": 20,
     "includeCompanyInfo": true,
     "outputFormat": "detailed",
     "page": 1,
@@ -57,13 +99,21 @@ The Actor accepts the following input parameters:
 }
 ```
 
-## Output
+### Best Practices
 
-The Actor provides three comprehensive data views for analyzing email and company information:
+- **Domain Selection**: Use clean domain names without protocols (http/https)
+- **Rate Limits**: The Actor automatically handles Tomba's 15 requests/second limit
+- **Batch Size**: Process 5-20 domains at a time for optimal performance
+- **Department Filtering**: Use specific departments to target relevant contacts
+- **Pagination**: Use page parameter for large result sets
 
-### Overview View - Domain Search Results
+## Output Data Structure
 
-Complete overview of email addresses found for each domain with full company information:
+The Actor provides comprehensive email discovery and company intelligence data in three organized views:
+
+### Example Output - Overview View
+
+Complete domain search results with company information and discovered emails:
 
 ```json
 {
@@ -79,7 +129,7 @@ Complete overview of email addresses found for each domain with full company inf
     "organization.company_type": "privately held",
     "organization.revenue": "$100M-$250M",
     "organization.phone_number": "+1 415 298 5539",
-    "organization.description": "stripe is a payment processing platform...",
+    "organization.description": "stripe is a payment processing platform enabling businesses to accept payments and manage online transactions.",
     "organization.social_links.linkedin_url": "https://www.linkedin.com/company/stripe",
     "organization.social_links.twitter_url": "https://twitter.com/stripe",
     "emails": [
@@ -100,69 +150,29 @@ Complete overview of email addresses found for each domain with full company inf
 }
 ```
 
-### Individual Emails View - Detailed Email Information
+### Data Structure Overview
 
-Flattened view showing each email address with personal and professional details:
+The output contains three main data categories organized for different use cases:
 
-```json
-{
-    "domain": "stripe.com",
-    "organization.organization": "Stripe",
-    "organization.location.country": "US",
-    "organization.industries": "Information Technology and Services",
-    "email": "jane@stripe.com",
-    "first_name": "Jane",
-    "last_name": "Natoli",
-    "full_name": "Jane Natoli",
-    "position": "Financial Crimes Analyst",
-    "department": "finance",
-    "seniority": "senior",
-    "type": "personal",
-    "country": "US",
-    "linkedin": "https://www.linkedin.com/in/jane-natoli-52a8a0a",
-    "score": 100,
-    "verification.status": "valid",
-    "verification.date": "2025-09-13T00:00:00+02:00",
-    "sources": [
-        {
-            "uri": "https://stripe.com/docs/cli",
-            "website_url": "stripe.com",
-            "extracted_on": "2022-03-08T01:23:16+01:00",
-            "last_seen_on": "2022-08-04T09:42:10+02:00",
-            "still_on_page": true
-        }
-    ]
-}
-```
+#### Email Discovery Results
 
-### Company Information View - Business Intelligence
+- **Contact Details**: Email addresses, names, job titles, and departments
+- **Professional Info**: Position, seniority level, and LinkedIn profiles
+- **Verification Data**: Email validity status, confidence scores, and verification dates
+- **Source Intelligence**: Where emails were discovered and current availability
 
-Comprehensive company profiles with all available business data:
+#### Company Intelligence
 
-```json
-{
-    "domain": "stripe.com",
-    "organization.website_url": "stripe.com",
-    "organization.organization": "Stripe",
-    "organization.description": "stripe is a payment processing platform enabling businesses to accept payments and manage online transactions.",
-    "organization.industries": "Information Technology and Services",
-    "organization.founded": "2010",
-    "organization.company_size": "5K-10K",
-    "organization.company_type": "privately held",
-    "organization.revenue": "$100M-$250M",
-    "organization.location.country": "US",
-    "organization.location.city": "San Francisco",
-    "organization.location.state": "California",
-    "organization.location.street_address": "354 oyster point blvd",
-    "organization.location.postal_code": "94107",
-    "organization.phone_number": "+1 415 298 5539",
-    "organization.social_links.linkedin_url": "https://www.linkedin.com/company/stripe",
-    "organization.social_links.twitter_url": "https://twitter.com/stripe",
-    "organization.social_links.facebook_url": "https://www.facebook.com/stripehq",
-    "organization.whois.registrar_name": "safenames ltd.",
-    "organization.whois.created_date": "1995-09-12T06:00:00+02:00"
-}
-```
+- **Business Basics**: Company name, description, industry, and founding information
+- **Location Data**: Complete address, city, state, country, and postal codes
+- **Business Metrics**: Employee count, revenue estimates, and company type
+- **Digital Presence**: Social media profiles and domain registration details
+
+#### Search Metadata
+
+- **Result Counts**: Total emails found and pagination information
+- **Search Parameters**: Applied filters and search configuration
+- **Processing Status**: Success rates and error information
 
 ### Key Data Fields
 
@@ -170,15 +180,15 @@ Comprehensive company profiles with all available business data:
 
 - `email`: Email address
 - `first_name`, `last_name`, `full_name`: Personal names
-- `position`: Job title
-- `department`: Department (engineering, sales, finance, etc.)
+- `position`: Job title and role
+- `department`: Organizational department
 - `seniority`: Job level (senior, junior, executive, etc.)
 - `type`: Email type (personal, generic, etc.)
-- `country`: Person's country
+- `country`: Person's location
 - `linkedin`: LinkedIn profile URL
 - `score`: Confidence score (0-100)
 - `verification.status`: Email validity (valid, invalid, risky, etc.)
-- `verification.date`: When email was last verified
+- `verification.date`: Last verification timestamp
 
 **Company Information:**
 
@@ -187,62 +197,60 @@ Comprehensive company profiles with all available business data:
 - `organization.industries`: Industry classification
 - `organization.founded`: Year established
 - `organization.company_size`: Employee count range
-- `organization.company_type`: Business type (privately held, public, etc.)
-- `organization.revenue`: Revenue range
-- `organization.location.*`: Full address details
+- `organization.revenue`: Revenue estimates
+- `organization.location.*`: Complete address details
 - `organization.social_links.*`: Social media profiles
-- `organization.whois.*`: Domain registration details
+- `organization.whois.*`: Domain registration data
 
-**Source Information:**
+**Source Tracking:**
 
-- `sources`: Array of where emails were found
-    - `uri`: Specific webpage URL
-    - `website_url`: Main website
-    - `extracted_on`: Discovery date
-    - `last_seen_on`: Last verification date
-    - `still_on_page`: Current availability status
+- `sources`: Array of discovery sources
+- `uri`: Specific webpage URLs where emails were found
+- `extracted_on`: Discovery date
+- `last_seen_on`: Last verification date
+- `still_on_page`: Current availability status
 
-## Getting Started
+### Key Benefits
 
-1. **Get Tomba API Credentials**: Sign up at [Tomba.io](https://tomba.io) and obtain your API key and secret
-2. **Configure Input**: Set up your input with the required API credentials and domains
-3. **Run the Actor**: The Actor will process each domain and return email results
-
-## API Rate Limits
-
-### Domain Search Rate Limits
-
-- **15 requests per second** - The Tomba API allows up to 15 domain search requests per second
-- **Built-in Rate Limiting**: This Actor includes a 1-second delay between domain requests to respect API limits and ensure stable operation
-- **Efficient Management**: The rate limiting ensures you can manage your searches efficiently without exceeding platform constraints
-
-### Rate Limit Management
-
-The Actor automatically handles rate limiting by:
-
-- Adding 1-second delays between each domain search
-- Preventing API rate limit errors
-- Ensuring consistent and reliable email discovery
-- Allowing for high-volume usage within API constraints
-
-For high-volume usage, consider the rate limits of your Tomba plan and the number of domains you process per run.
-
-## Error Handling
-
-The Actor handles various error scenarios:
-
-- Invalid API credentials
-- Missing required parameters
-- API rate limit errors
-- Network timeouts
-- Invalid domain formats
-
-Errors are logged and included in the output for transparency.
+- **Comprehensive Email Discovery**: Find verified contact information with detailed professional context
+- **Company Intelligence**: Get complete business profiles alongside contact data
+- **Quality Assurance**: Email verification and confidence scoring for better targeting
+- **Source Transparency**: Know exactly where contact information was discovered
+- **Flexible Filtering**: Target specific departments, locations, and seniority levels
 
 ## Use Cases
 
-- **Lead Generation**: Find contact emails for potential customers
-- **Market Research**: Analyze email patterns across competitors
-- **Recruitment**: Find contact information for potential candidates
-- **Sales Outreach**: Build targeted email lists for specific companies
-- **Data Enrichment**: Enhance existing contact databases
+- **Lead Generation**: Discover verified contact emails for potential customers and prospects
+- **Sales Outreach**: Build targeted email lists for specific companies and departments
+- **Recruitment**: Find contact information for potential candidates in specific roles
+- **Market Research**: Analyze email patterns and organizational structures across competitors
+- **Data Enrichment**: Enhance existing contact databases with fresh, verified information
+- **Competitive Intelligence**: Research team structures and key personnel at target companies
+- **Partnership Development**: Find decision-makers and relevant contacts for business partnerships
+
+## API Rate Limits & Performance
+
+### Domain Search Rate Limits
+
+- **15 requests per second** - Tomba API allows up to 15 domain search requests per second
+- **Built-in Rate Management**: Actor includes 1-second delays between domain requests
+- **Efficient Processing**: Automatic rate limiting ensures stable operation without errors
+- **High-Volume Support**: Designed for processing multiple domains within API constraints
+
+### Performance Optimization
+
+The Actor automatically handles performance optimization through:
+
+- **Smart Rate Limiting**: 1-second delays between domain searches prevent API overload
+- **Error Recovery**: Robust handling of network timeouts and API errors
+- **Batch Processing**: Efficient processing of multiple domains in sequence
+- **Memory Management**: Optimized data handling for large result sets
+
+## Resources & Documentation
+
+### API Documentation
+
+- [Tomba API Docs](https://tomba.io/api) - Complete API reference and guides
+- [Authentication Guide](https://app.tomba.io/api) - Get your API keys and setup
+- [Pricing & Limits](https://tomba.io/pricing) - Understand rate limits and costs
+- [Domain Search API](https://tomba.io/api/domain-search) - Specific endpoint documentation
