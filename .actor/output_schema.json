@@ -1,0 +1,14 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Domain Search Output",
+    "description": "Output from Tomba Domain Search Actor - email addresses discovered within specific domains",
+    "type": "object",
+    "properties": {
+        "results": {
+            "type": "string",
+            "title": "Domain Search Results",
+            "description": "Email addresses found within the domain with contact information",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        }
+    }
+}
