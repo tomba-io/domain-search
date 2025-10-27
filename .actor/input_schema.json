@@ -8,14 +8,16 @@
             "type": "string",
             "description": "Your Tomba API key (ta_xxxx). Get it from https://app.tomba.io/api",
             "isSecret": true,
-            "editor": "textfield"
+            "editor": "textfield",
+            "prefill": "ta_xxxxxxxxxxxxxxxxxxxx"
         },
         "tombaApiSecret": {
             "title": "Tomba API Secret",
             "type": "string",
             "description": "Your Tomba secret key (ts_xxxx). Get it from https://app.tomba.io/api",
             "isSecret": true,
-            "editor": "textfield"
+            "editor": "textfield",
+            "prefill": "ts_xxxxxxxxxxxxxxxxxxxx"
         },
         "domains": {
             "title": "Domains",
@@ -25,7 +27,8 @@
                 "type": "string"
             },
             "minItems": 1,
-            "editor": "stringList"
+            "editor": "stringList",
+            "prefill": ["stripe.com", "tomba.io"]
         },
         "maxEmailsPerDomain": {
             "title": "Max Emails Per Domain",
