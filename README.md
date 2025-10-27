@@ -255,6 +255,10 @@ The Actor automatically handles performance optimization through:
 - [Pricing & Limits](https://tomba.io/pricing) - Understand rate limits and costs
 - [Domain Search API](https://tomba.io/api/domain-search) - Specific endpoint documentation
 
+## Keywords
+
+domain search, email discovery, company email finder, domain analysis, contact discovery, business emails, corporate contacts, lead generation, prospect research, email search, domain intelligence, business development
+
 ## Support
 
 If you need any help, have questions, or encounter any issues while using Tomba.io, please don't hesitate to reach out to our support team. You can contact us via:
