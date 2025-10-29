@@ -255,6 +255,58 @@ The Actor automatically handles performance optimization through:
 - [Pricing & Limits](https://tomba.io/pricing) - Understand rate limits and costs
 - [Domain Search API](https://tomba.io/api/domain-search) - Specific endpoint documentation
 
+## FAQ
+
+### General Questions
+
+**Q: What is domain search and how does it work?**
+A: Domain search finds all email addresses associated with a specific company domain. It scans public sources, web pages, and databases to discover professional email addresses for employees at that organization.
+
+**Q: How accurate are the email addresses found?**
+A: Tomba provides high-quality, verified email addresses. Each email comes with verification status and confidence scores. The accuracy rate is typically 95%+ for validated emails.
+
+**Q: What domains can I search?**
+A: You can search any company domain (e.g., stripe.com, google.com). The domain should be a valid business website. Personal email domains (gmail.com, yahoo.com) are not supported.
+
+### Usage & Features
+
+**Q: How many emails can I find per domain?**
+A: You can set the limit using the `maxEmailsPerDomain` parameter (1-100). The default is 10 emails per domain. Higher limits may require more API credits.
+
+**Q: Can I filter results by department or country?**
+A: Yes! Use the `department` parameter to filter by specific departments (engineering, sales, marketing, etc.) and the `country` parameter to filter by geographic location.
+
+**Q: What's the difference between detailed and simple output formats?**
+A: Detailed format includes complete contact information, company data, and verification details. Simple format provides just the essential email and name information.
+
+**Q: How does pagination work?**
+A: Use the `page` parameter to navigate through results. Each page contains the number of emails specified in your `limit` parameter. Check `meta.total` to see the total available results.
+
+### Technical Questions
+
+**Q: What are the rate limits?**
+A: The Actor automatically handles Tomba's rate limits (15 requests/second). You don't need to worry about throttling - it's managed automatically.
+
+**Q: Can I process multiple domains at once?**
+A: Yes, provide an array of domains in the `domains` parameter. We recommend processing 5-20 domains at a time for optimal performance.
+
+**Q: How should I handle API errors?**
+A: The Actor provides detailed error messages. Common issues include invalid API keys, exceeded quota, or invalid domain formats. Check the output for specific error details.
+
+**Q: What happens if a domain has no emails?**
+A: The result will show an empty `emails` array but may still include company information if available. This is normal for new companies or domains with no public email presence.
+
+### Data & Privacy
+
+**Q: Is the email data GDPR compliant?**
+A: Yes, Tomba follows GDPR guidelines and only collects publicly available information. All data sources are legitimate and comply with privacy regulations.
+
+**Q: How often is the email data updated?**
+A: Tomba continuously updates its database. Email verification dates are included in the results to show data freshness.
+
+**Q: Can I export the results?**
+A: Yes, all results are available in JSON format through the Actor's dataset. You can also download the data as CSV, Excel, or other formats from the Apify platform.
+
 ## Keywords
 
 domain search, email discovery, company email finder, domain analysis, contact discovery, business emails, corporate contacts, lead generation, prospect research, email search, domain intelligence, business development
