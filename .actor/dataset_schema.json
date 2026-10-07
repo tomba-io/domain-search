@@ -13,7 +13,7 @@
                 "description": "The domain that was searched (for a company search: the domain Tomba resolved, when reported)"
             },
             "organization": {
-                "type": "object",
+                "type": ["object", "null"],
                 "description": "Organization information for the domain",
                 "properties": {
                     "website_url": {
@@ -25,7 +25,7 @@
                         "description": "Company name"
                     },
                     "location": {
-                        "type": "object",
+                        "type": ["object", "null"],
                         "description": "Company location details",
                         "properties": {
                             "country": {
@@ -51,7 +51,7 @@
                         }
                     },
                     "social_links": {
-                        "type": "object",
+                        "type": ["object", "null"],
                         "description": "Company social media links",
                         "properties": {
                             "twitter_url": {
@@ -69,7 +69,7 @@
                         }
                     },
                     "phone_number": {
-                        "type": ["string", "null"],
+                        "type": ["boolean", "string", "null"],
                         "description": "Company phone number"
                     },
                     "industries": {
@@ -97,7 +97,7 @@
                         "description": "Company description"
                     },
                     "whois": {
-                        "type": "object",
+                        "type": ["object", "null"],
                         "description": "Domain WHOIS information",
                         "properties": {
                             "registrar_name": {
@@ -113,13 +113,13 @@
                 }
             },
             "emails": {
-                "type": "array",
+                "type": ["array", "null"],
                 "description": "Array of email addresses found for the domain",
                 "items": {
                     "type": "object",
                     "properties": {
                         "email": {
-                            "type": "string",
+                            "type": ["string", "null"],
                             "description": "Email address"
                         },
                         "first_name": {
@@ -182,7 +182,7 @@
                             "description": "Confidence score for the email"
                         },
                         "verification": {
-                            "type": "object",
+                            "type": ["object", "null"],
                             "description": "Email verification status",
                             "properties": {
                                 "date": {
@@ -196,7 +196,7 @@
                             }
                         },
                         "sources": {
-                            "type": "array",
+                            "type": ["array", "null"],
                             "description": "Sources where the email was found",
                             "items": {
                                 "type": "object",
@@ -232,7 +232,7 @@
                 "description": "Total phone numbers returned across all emails (emails[].phone_data); only filled when enrichMobile is on"
             },
             "meta": {
-                "type": "object",
+                "type": ["object", "null"],
                 "description": "Metadata about the search results",
                 "properties": {
                     "total": {
@@ -240,7 +240,7 @@
                         "description": "Total number of emails found"
                     },
                     "params": {
-                        "type": "object",
+                        "type": ["object", "null"],
                         "description": "Search parameters used"
                     }
                 }

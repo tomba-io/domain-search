@@ -35,3 +35,7 @@ All notable changes to this project will be documented in this file. See [standa
 - `apify` upgraded to 3.7.2
 
 ### 0.0.2 (2025-10-20)
+
+### Bug Fixes
+
+- Runs on Apify no longer fail with "Schema validation failed": `phone_number` is a boolean in Tomba's response, and the dataset schema now accepts it (and `null` for every Tomba field)
