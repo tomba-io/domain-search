@@ -4,9 +4,13 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
+            "company": {
+                "type": "string",
+                "description": "The company name that was searched (company searches only)"
+            },
             "domain": {
                 "type": "string",
-                "description": "The domain that was searched"
+                "description": "The domain that was searched (for a company search: the domain Tomba resolved, when reported)"
             },
             "organization": {
                 "type": "object",
@@ -144,7 +148,14 @@
                         },
                         "phone_number": {
                             "type": ["boolean", "string", "null"],
-                            "description": "Whether person has phone number available"
+                            "description": "Whether Tomba has a phone number for this person (flag only; the numbers themselves are in phone_data when enrichMobile is on)"
+                        },
+                        "phone_data": {
+                            "type": ["array", "null"],
+                            "description": "The person's phone numbers (only returned when enrichMobile is on)",
+                            "items": {
+                                "type": "object"
+                            }
                         },
                         "type": {
                             "type": ["string", "null"],
@@ -216,6 +227,10 @@
                     }
                 }
             },
+            "phoneNumbers": {
+                "type": "integer",
+                "description": "Total phone numbers returned across all emails (emails[].phone_data); only filled when enrichMobile is on"
+            },
             "meta": {
                 "type": "object",
                 "description": "Metadata about the search results",
@@ -229,6 +244,30 @@
                         "description": "Search parameters used"
                     }
                 }
+            },
+            "pages": {
+                "type": "integer",
+                "description": "Number of page requests that returned results for this domain"
+            },
+            "chargedRequests": {
+                "type": "integer",
+                "description": "Number of page requests charged for this domain (pay-per-event)"
+            },
+            "chargedCredits": {
+                "type": "integer",
+                "description": "Credits billed for this search ($0.00312 each): 1 per 10 results requested with limit (rounded up) per page, plus 5 per returned address with phone data (enrichMobile only)"
+            },
+            "charged": {
+                "type": "boolean",
+                "description": "Whether this request was charged (pay-per-event)"
+            },
+            "cached": {
+                "type": "boolean",
+                "description": "Whether the result came from the cache (free)"
+            },
+            "error": {
+                "type": ["string", "null"],
+                "description": "Error message if the search failed"
             }
         }
     },
@@ -238,6 +277,7 @@
             "description": "Overview of email addresses found for each domain",
             "transformation": {
                 "fields": [
+                    "company",
                     "domain",
                     "organization.website_url",
                     "organization.organization",
@@ -254,14 +294,25 @@
                     "organization.social_links.linkedin_url",
                     "organization.social_links.twitter_url",
                     "emails",
+                    "phoneNumbers",
                     "meta.total",
-                    "meta.params"
+                    "meta.params",
+                    "pages",
+                    "chargedRequests",
+                    "chargedCredits",
+                    "charged",
+                    "cached",
+                    "error"
                 ],
                 "flatten": ["organization", "organization.location", "organization.social_links", "meta"]
             },
             "display": {
                 "component": "table",
                 "properties": {
+                    "company": {
+                        "label": "Company",
+                        "format": "text"
+                    },
                     "domain": {
                         "label": "Domain",
                         "format": "text"
@@ -326,6 +377,10 @@
                         "label": "Email Results",
                         "format": "array"
                     },
+                    "phoneNumbers": {
+                        "label": "Phone numbers",
+                        "format": "number"
+                    },
                     "meta.total": {
                         "label": "Total Found",
                         "format": "number"
@@ -333,6 +388,30 @@
                     "meta.params": {
                         "label": "Search Parameters",
                         "format": "object"
+                    },
+                    "pages": {
+                        "label": "Pages",
+                        "format": "number"
+                    },
+                    "chargedRequests": {
+                        "label": "Charged Requests",
+                        "format": "number"
+                    },
+                    "chargedCredits": {
+                        "label": "Credits charged",
+                        "format": "number"
+                    },
+                    "charged": {
+                        "label": "Charged",
+                        "format": "boolean"
+                    },
+                    "cached": {
+                        "label": "Cached",
+                        "format": "boolean"
+                    },
+                    "error": {
+                        "label": "Error",
+                        "format": "text"
                     }
                 }
             }
@@ -341,12 +420,16 @@
             "title": "Individual Emails",
             "description": "Detailed view of individual email addresses",
             "transformation": {
-                "fields": ["domain", "emails"],
+                "fields": ["company", "domain", "emails"],
                 "unwind": ["emails"]
             },
             "display": {
                 "component": "table",
                 "properties": {
+                    "company": {
+                        "label": "Company",
+                        "format": "text"
+                    },
                     "domain": {
                         "label": "Domain",
                         "format": "text"
@@ -387,6 +470,10 @@
                         "label": "Person Country",
                         "format": "text"
                     },
+                    "phone_data": {
+                        "label": "Phone numbers",
+                        "format": "array"
+                    },
                     "linkedin": {
                         "label": "LinkedIn",
                         "format": "url"
@@ -411,6 +498,7 @@
             "description": "Detailed company information for each domain",
             "transformation": {
                 "fields": [
+                    "company",
                     "domain",
                     "organization.website_url",
                     "organization.organization",
@@ -437,6 +525,10 @@
             "display": {
                 "component": "table",
                 "properties": {
+                    "company": {
+                        "label": "Company",
+                        "format": "text"
+                    },
                     "domain": {
                         "label": "Domain",
                         "format": "text"

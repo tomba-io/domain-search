@@ -3,32 +3,24 @@
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "tombaApiKey": {
-            "title": "Tomba API Key",
-            "type": "string",
-            "description": "Your Tomba API key (ta_xxxx). Get it from https://app.tomba.io/api",
-            "isSecret": true,
-            "editor": "textfield",
-            "prefill": "ta_xxxxxxxxxxxxxxxxxxxx"
-        },
-        "tombaApiSecret": {
-            "title": "Tomba API Secret",
-            "type": "string",
-            "description": "Your Tomba secret key (ts_xxxx). Get it from https://app.tomba.io/api",
-            "isSecret": true,
-            "editor": "textfield",
-            "prefill": "ts_xxxxxxxxxxxxxxxxxxxx"
-        },
         "domains": {
             "title": "Domains",
             "type": "array",
-            "description": "List of domains to search for email addresses",
+            "description": "Company domains to search for email addresses, e.g. stripe.com. URLs are cleaned up and duplicates removed. Provide domains, company names, or both.",
             "items": {
                 "type": "string"
             },
-            "minItems": 1,
             "editor": "stringList",
             "prefill": ["stripe.com", "tomba.io"]
+        },
+        "companies": {
+            "title": "Company names",
+            "type": "array",
+            "description": "Company names to search instead of a domain, e.g. Stripe. Tomba resolves the company to its domain. Provide domains, company names, or both.",
+            "items": {
+                "type": "string"
+            },
+            "editor": "stringList"
         },
         "maxEmailsPerDomain": {
             "title": "Max Emails Per Domain",
@@ -72,48 +64,52 @@
             "type": "string",
             "description": "Get only email addresses for people working in the selected department",
             "enum": [
+                "accounting",
+                "administrative",
+                "communication",
+                "diversity",
+                "education",
                 "engineering",
-                "sales",
+                "executive",
+                "facilities",
                 "finance",
+                "healthcare",
                 "hr",
                 "it",
+                "legal",
+                "management",
                 "marketing",
                 "operations",
-                "management",
-                "executive",
-                "legal",
-                "support",
-                "communication",
-                "software",
-                "security",
                 "pr",
-                "warehouse",
-                "diversity",
-                "administrative",
-                "facilities",
-                "accounting"
+                "sales",
+                "security",
+                "software",
+                "support",
+                "warehouse"
             ],
             "enumTitles": [
+                "Accounting",
+                "Administrative",
+                "Communication",
+                "Diversity",
+                "Education",
                 "Engineering",
-                "Sales",
+                "Executive",
+                "Facilities",
                 "Finance",
+                "Healthcare",
                 "HR",
                 "IT",
+                "Legal",
+                "Management",
                 "Marketing",
                 "Operations",
-                "Management",
-                "Executive",
-                "Legal",
-                "Support",
-                "Communication",
-                "Software",
-                "Security",
                 "PR",
-                "Warehouse",
-                "Diversity",
-                "Administrative",
-                "Facilities",
-                "Accounting"
+                "Sales",
+                "Security",
+                "Software",
+                "Support",
+                "Warehouse"
             ]
         },
         "country": {
@@ -124,7 +120,57 @@
             "minLength": 2,
             "pattern": "^[A-Z]{2}$",
             "editor": "textfield"
+        },
+        "enrichMobile": {
+            "title": "Enrich with mobile phone numbers",
+            "type": "boolean",
+            "description": "Also return each person's phone numbers (in emails[].phone_data). Costs extra: 5 additional credits ($0.0156) for every returned address that comes with phone data. Addresses without phone data cost nothing extra.",
+            "default": false,
+            "editor": "checkbox"
+        },
+        "webhookUrl": {
+            "title": "Webhook URL",
+            "type": "string",
+            "description": "Optional URL that Tomba also POSTs each search result to. Results served from the cache are not sent again.",
+            "pattern": "^https?://",
+            "editor": "textfield"
+        },
+        "maxConcurrency": {
+            "title": "Max concurrency",
+            "type": "integer",
+            "description": "How many Tomba requests run in parallel. There is no rate limit, so raise it for large lists.",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10,
+            "editor": "number",
+            "sectionCaption": "Run options",
+            "sectionDescription": "Concurrency, retry and cache settings. The defaults work well for most runs."
+        },
+        "maxRetries": {
+            "title": "Max retries",
+            "type": "integer",
+            "description": "How many times to retry a request after a network error, 429 or 5xx response (exponential backoff). Failed requests are never charged.",
+            "minimum": 0,
+            "maximum": 10,
+            "default": 3,
+            "editor": "number"
+        },
+        "useCache": {
+            "title": "Use cache",
+            "type": "boolean",
+            "description": "Reuse results from previous runs for identical requests. Cached results are free.",
+            "default": true,
+            "editor": "checkbox"
+        },
+        "cacheTtlHours": {
+            "title": "Cache TTL (hours)",
+            "type": "integer",
+            "description": "How long cached results stay valid. 0 disables the cross-run cache.",
+            "minimum": 0,
+            "maximum": 720,
+            "default": 24,
+            "editor": "number",
+            "unit": "hours"
         }
-    },
-    "required": ["tombaApiKey", "tombaApiSecret", "domains"]
+    }
 }

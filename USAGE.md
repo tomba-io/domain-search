@@ -1,132 +1,88 @@
-# Usage Guide - Tomba Domain Search Actor
+# Usage Guide (maintainers)
 
-## Quick Start
+How to run the Tomba Domain Search Actor locally and what to check when something goes wrong. See [Development.md](Development.md) for credentials, pricing and architecture, and the README for the end-user documentation.
 
-1. **Get Tomba API Credentials**
-    - Sign up at [Tomba.io](https://tomba.io)
-    - Get your API Key (starts with `ta_`) and Secret (starts with `ts_`)
+## Run locally
 
-2. **Update Input Configuration**
+1. Put an input in `storage/key_value_stores/default/INPUT.json` (no Tomba credentials in the input):
 
     ```json
     {
-        "tombaApiKey": "ta_your_actual_key_here",
-        "tombaApiSecret": "ts_your_actual_secret_here",
-        "domains": ["example.com"]
+        "domains": ["stripe.com"],
+        "maxEmailsPerDomain": 20,
+        "limit": "10"
     }
     ```
 
-3. **Run the Actor**
+2. Run the Actor with the Tomba credentials in the environment:
+
     ```bash
-    apify run
+    TOMBA_API_KEY=ta_xxx TOMBA_API_SECRET=ts_xxx npm start
     ```
 
-## Input Parameters
+On the Apify platform the credentials come from the `tombaApiKey` / `tombaApiSecret` Apify secrets (see `.actor/actor.json`), so users never provide them.
 
-### Required
+## Input
 
-- `tombaApiKey`: Your Tomba API key
-- `tombaApiSecret`: Your Tomba API secret
-- `domains`: Array of domains to search
+- `domains`: domains to search; normalized and deduplicated
+- `companies`: company names to search (sent as `company=`); trimmed and deduplicated. At least one of `domains` / `companies` is required
+- `maxEmailsPerDomain` (default 10, max 100): the Actor pages automatically to reach it
+- `limit` (`"10"`, `"20"` or `"50"`, default `"10"`): emails per page request; every billable page costs `ceil(limit / 10)` `tomba-request` events plus, with `enrichMobile`, 5 per returned address with non-empty `phone_data`
+- `page` (default 1): first page to fetch
+- `department`, `country`: Tomba filters, passed through as query parameters
+- `enrichMobile` (default false): sends `enrich_mobile=true`; emails then carry `phone_data`
+- `webhookUrl`: sent as `webhook_url`; Tomba also POSTs the result there (not for cached pages)
+- `includeCompanyInfo` (default true): include `organization` in the output
+- `outputFormat`: accepted but currently has no effect
+- `maxConcurrency` (default 10), `maxRetries` (default 3), `useCache` / `cacheTtlHours` (default on, 24 hours)
 
-### Optional
+## Output
 
-- `maxEmailsPerDomain`: Max emails per domain (default: 10)
-- `includeCompanyInfo`: Include company details (default: true)
-- `firstName`: Required for finder mode
-- `lastName`: Required for finder mode
-
-## Search Modes
-
-### Domain Search (`"domain"`)
-
-Finds all email addresses associated with a domain:
-
-```json
-{
-    "domains": ["stripe.com"]
-}
-```
-
-## Example Output
+One dataset item per domain or company name (company searches have `company` and, when Tomba reports it, `domain`):
 
 ```json
 {
     "domain": "stripe.com",
-    "email": "john@stripe.com",
-    "firstName": "John",
-    "lastName": "Collison",
-    "position": "Co-founder",
-    "companyName": "Stripe",
-    "sources": [
-        {
-            "uri": "https://stripe.com/about",
-            "website_url": "https://stripe.com",
-            "extracted_on": "2023-01-01T00:00:00Z",
-            "last_seen_on": "2023-01-01T00:00:00Z"
-        }
-    ],
-    "verification": {
-        "date": "2023-01-01T00:00:00Z",
-        "status": "valid"
-    }
+    "organization": { "organization": "Stripe", "...": "..." },
+    "emails": [{ "email": "jane@stripe.com", "first_name": "Jane", "phone_data": [], "...": "..." }],
+    "phoneNumbers": 0,
+    "meta": { "total": 1250, "pageSize": 10, "current": 2, "total_pages": 125 },
+    "pages": 2,
+    "chargedRequests": 2,
+    "chargedCredits": 2,
+    "charged": true,
+    "cached": false
 }
 ```
 
-## Local Development
+A search without results is saved as `{ "domain" | "company", "charged": false, "cached": false, "error" }`.
 
-```bash
-# Install dependencies
-npm install
+## Error handling
 
-# Run in development mode
-npm run start:dev
-
-# Build for production
-npm run build
-
-# Run tests (if available)
-npm test
-
-# Fix linting issues
-npm run lint:fix
-```
-
-## Error Handling
-
-The Actor handles various scenarios:
-
-- **Invalid API credentials**: Logs error and continues with next domain
-- **Rate limiting**: Built-in delays to respect API limits
-- **Network issues**: Retries and error logging
-- **Invalid domains**: Validation and error reporting
-
-## API Rate Limits
-
-- Built-in 1-second delay between domain requests
-- Respects Tomba API rate limits
-- For high-volume usage, consider your Tomba plan limits
+- **Missing credentials**: the run fails with "Actor is misconfigured" when `TOMBA_API_KEY` / `TOMBA_API_SECRET` are not set; no request is made
+- **Network errors, 429 and 5xx**: retried with exponential backoff (`maxRetries`), never charged
+- **Invalid domains or filters (4xx)**: saved as an item with an `error` field and `charged: false`, not retried
+- **A later page fails**: the domain keeps the pages already fetched
+- **Max cost per run reached**: the Actor stops cleanly; a resumed run skips finished domains
 
 ## Troubleshooting
 
-### Authentication Issues
+### Authentication errors
 
 ```
 Error: Please enter a valid KEY
 ```
 
-- Verify your API key starts with `ta_`
-- Verify your API secret starts with `ts_`
-- Check your Tomba account status
+- Check the `TOMBA_API_KEY` / `TOMBA_API_SECRET` environment variables (or the Apify secrets they map to)
+- Check the Tomba account status of those credentials
 
-### No Results Found
+### No results
 
-- Domain might not have indexed emails
-- Try different domains
-- Check if domain is spelled correctly
+- The domain may not have indexed emails, or the `department` / `country` filters are too narrow
+- Check that the domain is spelled correctly
 
-### Rate Limiting
+### Slow runs
 
-- Actor includes built-in delays
-- Consider upgrading Tomba plan for higher limits
-- Reduce number of domains per run
+- Raise `maxConcurrency`; there is no client-side rate limit
+- Use `limit: "50"` so fewer page requests are needed (the credit cost per result is the same)
+- Keep `useCache` on for re-runs
