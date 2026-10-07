@@ -74,7 +74,7 @@ There is no client-side rate limit; throughput is controlled by `maxConcurrency`
 
 ## Architecture
 
-- `src/tomba.ts`: shared helper, identical in every Tomba Actor. It handles credentials, caching (`tomba-cache` key-value store), retries with exponential backoff, pay-per-event charging, budget reservation, the concurrency pool and resume state.
+- `src/tomba.ts`: shared helper, identical in every Tomba Actor. It handles credentials, caching (per-Actor `tomba-cache-<actorId>` key-value store; falls back to an in-run cache if it can't be opened), retries with exponential backoff, pay-per-event charging, budget reservation, the concurrency pool and resume state.
 - `src/main.ts`: input handling, paging and output mapping.
     - Input is `domains` and/or `companies` (at least one required; the run fails before any request otherwise). Domains are normalized (`normalizeDomain`) and deduplicated; company names are trimmed (inner whitespace collapsed) and deduplicated case-insensitively. A domain is sent as `domain=`, a company name as `company=`.
     - Resume-state keys are the plain domain for domains and `company:<lowercased name>` for companies; cache keys differ automatically because the request params differ (`domain` vs `company`).
@@ -83,17 +83,44 @@ There is no client-side rate limit; throughput is controlled by `maxConcurrency`
     - Paging stops when `maxEmailsPerDomain` is reached, at a short page, at `meta.total_pages`, when `meta.total` emails were collected, at a non-billable page, or when the charge limit is reached (the domain keeps the pages already fetched).
     - If the charge limit is reached before the first page of a domain, the domain is not marked done, so a resumed run processes it.
     - One dataset item per search: `domain` or `company` (+ `domain` from `meta.params.domain` / `organization.website_url` when Tomba reports it), `organization` (if `includeCompanyInfo`), `emails` (passed through, so `phone_data` is included with `enrichMobile`), `phoneNumbers` (sum of `phone_data` lengths), `meta` (of the last page), `pages`, `chargedRequests`, `chargedCredits`, `charged`, `cached`; failures are `{ domain | company, charged: false, cached: false, error }`.
-    - A `SUMMARY` record is written to the default key-value store.
+    - A `SUMMARY` record is written to the default key-value store (batch runs only).
     - `outputFormat` is accepted for backwards compatibility but does not change the output.
 - The `tomba` SDK v1.1.1 resolves every call to `{ data, rateLimit }`, where `data` is the response body. Its `.d.ts` types still declare the old return type, so always go through `callTomba()`.
 
 ## Tests
 
 - `test/tomba.test.ts`: unit tests for the shared helper (identical in every Actor)
-- `test/main.test.ts`: end-to-end tests that run `src/main.ts` against a local mock Tomba API (paging, billing incl. phone credits, `companies`, `enrich_mobile` / `webhook_url`, cache, retries, charge limit and resume, concurrency, credentials). The mock adds `phone_data` only when the request has `enrich_mobile=true` (every third address gets one number)
+- `test/main.test.ts`: end-to-end tests that run `src/main.ts` against a local mock Tomba API (paging, billing incl. phone credits, `companies`, `enrich_mobile` / `webhook_url`, cache, retries, charge limit and resume, concurrency, credentials, Standby HTTP API). The mock adds `phone_data` only when the request has `enrich_mobile=true` (every third address gets one number)
 - `test/helpers.ts`: mock server and Actor runner (identical in every Actor)
 
 Locally, the Apify SDK prices every event at $1 when `ACTOR_TEST_PAY_PER_EVENT=true`, so the tests use `maxTotalChargeUsd` as an event count.
+
+## Standby mode (real-time API)
+
+`.actor/actor.json` sets `usesStandbyMode: true` and `webServerSchema: ./web_server_schema.json` (OpenAPI 3).
+
+- `src/standby.ts` (shared, identical in every Actor): `runActor()` runs a batch job, or, when `APIFY_META_ORIGIN=STANDBY`, starts an HTTP server on `Actor.config.get('containerPort')`.
+    - `GET /` with the `x-apify-container-server-readiness-probe` header, or with no query: readiness / usage.
+    - `GET /?…`: input built by `fromQuery()` in `src/main.ts` (`domain`/`domains`, `company`/`companies` as repeated or comma-separated values, `maxEmailsPerDomain`, `includeCompanyInfo`, `page`, `limit`, `department`, `country`, `enrichMobile`, `webhookUrl`).
+    - `POST /`: the same JSON input as a batch run.
+    - Responses: `200 { items }`, `400` invalid input (`InputError`), `402` max charge limit reached, `404`, `405`.
+- `run(input, ctx)` is shared by both modes: `ctx.push()` writes to the dataset in batch runs and to the HTTP response in Standby; `ctx.isDone()`/`ctx.markDone()` persist resume state only in batch runs. The `SUMMARY` record is only written in batch runs.
+- Caching and pay-per-event charging work the same in both modes.
+
+Try it locally:
+
+```bash
+APIFY_META_ORIGIN=STANDBY ACTOR_WEB_SERVER_PORT=8080 TOMBA_API_KEY=ta_… TOMBA_API_SECRET=ts_… npm start
+curl "localhost:8080/?domain=stripe.com"
+```
+
+## Key-value store schema
+
+`.actor/key_value_store_schema.json` documents the default key-value store records (`INPUT`, `TOMBA_STATE`, `SUMMARY`). The cross-run cache lives in the separate named store `tomba-cache-<actorId>`, one per Actor: under limited permissions an Actor can only open named storages it created itself, so the Tomba Actors must not share one store. If the store can't be opened, the run logs a warning and caches for this run only.
+
+## Memory
+
+`defaultMemoryMbytes` is 256: the Actor only makes HTTP calls, so more memory just costs more.
 
 ## Deployment
 

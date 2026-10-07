@@ -1,0 +1,103 @@
+{
+    "actorKeyValueStoreSchemaVersion": 1,
+    "title": "Tomba Domain Search storage",
+    "description": "Records the Actor keeps in its default key-value store. Results are in the dataset.",
+    "collections": {
+        "input": {
+            "title": "Input",
+            "description": "The input of this run.",
+            "key": "INPUT",
+            "contentTypes": ["application/json"]
+        },
+        "progress": {
+            "title": "Progress",
+            "description": "Domains and company names already searched, so a migrated or restarted run continues without charging again.",
+            "key": "TOMBA_STATE",
+            "contentTypes": ["application/json"],
+            "jsonSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                    "done": {
+                        "type": "object",
+                        "description": "Processed searches (a domain, or `company:<lowercased name>`) mapped to true",
+                        "additionalProperties": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "required": ["done"]
+            }
+        },
+        "summary": {
+            "title": "Summary",
+            "description": "Totals and settings of the run, written when a batch run finishes.",
+            "key": "SUMMARY",
+            "contentTypes": ["application/json"],
+            "jsonSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                    "totalDomains": {
+                        "type": "integer",
+                        "description": "Unique domains in the input"
+                    },
+                    "totalCompanies": {
+                        "type": "integer",
+                        "description": "Unique company names in the input"
+                    },
+                    "tombaRequests": {
+                        "type": "integer",
+                        "description": "Requests sent to Tomba (cache hits excluded)"
+                    },
+                    "chargedRequests": {
+                        "type": "integer",
+                        "description": "Charged events (credits)"
+                    },
+                    "cacheHits": {
+                        "type": "integer",
+                        "description": "Pages served from the cache"
+                    },
+                    "processedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "settings": {
+                        "type": "object",
+                        "description": "Search settings used for the run",
+                        "properties": {
+                            "maxEmailsPerDomain": {
+                                "type": "integer"
+                            },
+                            "includeCompanyInfo": {
+                                "type": "boolean"
+                            },
+                            "outputFormat": {
+                                "type": "string"
+                            },
+                            "page": {
+                                "type": "integer"
+                            },
+                            "limit": {
+                                "type": "string"
+                            },
+                            "department": {
+                                "type": "string"
+                            },
+                            "country": {
+                                "type": "string"
+                            },
+                            "enrichMobile": {
+                                "type": "boolean"
+                            },
+                            "webhookUrl": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": ["totalDomains", "totalCompanies", "processedAt"]
+            }
+        }
+    }
+}

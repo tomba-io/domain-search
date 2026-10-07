@@ -1,0 +1,471 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Tomba Domain Search API",
+        "version": "1.0.0",
+        "description": "Real-time API (Apify Standby mode). Find the email addresses (and optionally phone numbers) of a company by domain or company name. One credit costs $0.00312: each page costs 1 credit per 10 results requested with `limit` (10 = 1 credit, 20 = 2, 50 = 5), plus 5 credits for each returned address with phone data when `enrichMobile` is on. Unknown domains, errors and cached results are free."
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Search emails for domains or company names",
+                "description": "Without query parameters, returns a short usage note (also used as the readiness probe).",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "description": "Domain to search. Repeat the parameter or separate values with commas for several domains. URLs are cleaned up. Provide `domain`, `company`, or both.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "stripe.com"
+                    },
+                    {
+                        "name": "domains",
+                        "in": "query",
+                        "description": "Alias of `domain`.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "company",
+                        "in": "query",
+                        "description": "Company name to search instead of a domain (Tomba resolves it to its domain). Repeat the parameter or separate values with commas for several companies.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Stripe"
+                    },
+                    {
+                        "name": "companies",
+                        "in": "query",
+                        "description": "Alias of `company`.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "maxEmailsPerDomain",
+                        "in": "query",
+                        "description": "Maximum number of emails per domain or company (default 10). The Actor fetches as many pages as needed.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "includeCompanyInfo",
+                        "in": "query",
+                        "description": "Include the company profile (`organization`) in each result (default true).",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "First page to fetch (default 1).",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Emails per page request: 10, 20 or 50. Costs 1, 2 or 5 credits per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": ["10", "20", "50"],
+                            "default": "10"
+                        }
+                    },
+                    {
+                        "name": "department",
+                        "in": "query",
+                        "description": "Only return people working in this department.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "accounting",
+                                "administrative",
+                                "communication",
+                                "diversity",
+                                "education",
+                                "engineering",
+                                "executive",
+                                "facilities",
+                                "finance",
+                                "healthcare",
+                                "hr",
+                                "it",
+                                "legal",
+                                "management",
+                                "marketing",
+                                "operations",
+                                "pr",
+                                "sales",
+                                "security",
+                                "software",
+                                "support",
+                                "warehouse"
+                            ]
+                        },
+                        "example": "engineering"
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "Two-letter country code to filter email addresses.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[A-Z]{2}$"
+                        },
+                        "example": "US"
+                    },
+                    {
+                        "name": "enrichMobile",
+                        "in": "query",
+                        "description": "Also return each person's phone numbers in `emails[].phone_data` (+5 credits per returned address with phone data).",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "webhookUrl",
+                        "in": "query",
+                        "description": "Optional URL that Tomba also POSTs each search result to.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^https?://"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Results"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    },
+                    "402": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Search emails using a JSON input",
+                "description": "Accepts the same JSON input as a normal Actor run. Provide `domains`, `companies`, or both.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "domains": {
+                                        "type": "array",
+                                        "description": "Company domains to search for email addresses, e.g. stripe.com. URLs are cleaned up and duplicates removed. Provide domains, company names, or both.",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": ["stripe.com", "tomba.io"]
+                                    },
+                                    "companies": {
+                                        "type": "array",
+                                        "description": "Company names to search instead of a domain, e.g. Stripe. Tomba resolves the company to its domain. Provide domains, company names, or both.",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "maxEmailsPerDomain": {
+                                        "type": "integer",
+                                        "description": "Maximum number of emails to find per domain (applies to domain search)",
+                                        "minimum": 1,
+                                        "maximum": 100,
+                                        "default": 10
+                                    },
+                                    "includeCompanyInfo": {
+                                        "type": "boolean",
+                                        "description": "Include additional company information when available",
+                                        "default": true
+                                    },
+                                    "outputFormat": {
+                                        "type": "string",
+                                        "description": "Format of the output data",
+                                        "default": "detailed",
+                                        "enum": ["detailed", "simple"]
+                                    },
+                                    "page": {
+                                        "type": "integer",
+                                        "description": "Page number for pagination",
+                                        "minimum": 1,
+                                        "default": 1
+                                    },
+                                    "limit": {
+                                        "type": "string",
+                                        "description": "Specifies the max number of email addresses to return",
+                                        "default": "10",
+                                        "enum": ["10", "20", "50"]
+                                    },
+                                    "department": {
+                                        "type": "string",
+                                        "description": "Get only email addresses for people working in the selected department",
+                                        "enum": [
+                                            "accounting",
+                                            "administrative",
+                                            "communication",
+                                            "diversity",
+                                            "education",
+                                            "engineering",
+                                            "executive",
+                                            "facilities",
+                                            "finance",
+                                            "healthcare",
+                                            "hr",
+                                            "it",
+                                            "legal",
+                                            "management",
+                                            "marketing",
+                                            "operations",
+                                            "pr",
+                                            "sales",
+                                            "security",
+                                            "software",
+                                            "support",
+                                            "warehouse"
+                                        ]
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "description": "Two-letter country code to filter email addresses (e.g., 'US', 'UK', 'CA')",
+                                        "pattern": "^[A-Z]{2}$"
+                                    },
+                                    "enrichMobile": {
+                                        "type": "boolean",
+                                        "description": "Also return each person's phone numbers (in emails[].phone_data). Costs extra: 5 additional credits ($0.0156) for every returned address that comes with phone data. Addresses without phone data cost nothing extra.",
+                                        "default": false
+                                    },
+                                    "webhookUrl": {
+                                        "type": "string",
+                                        "description": "Optional URL that Tomba also POSTs each search result to. Results served from the cache are not sent again.",
+                                        "pattern": "^https?://"
+                                    },
+                                    "maxConcurrency": {
+                                        "type": "integer",
+                                        "description": "How many Tomba requests run in parallel. There is no rate limit, so raise it for large lists.",
+                                        "minimum": 1,
+                                        "maximum": 50,
+                                        "default": 10
+                                    },
+                                    "maxRetries": {
+                                        "type": "integer",
+                                        "description": "How many times to retry a request after a network error, 429 or 5xx response (exponential backoff). Failed requests are never charged.",
+                                        "minimum": 0,
+                                        "maximum": 10,
+                                        "default": 3
+                                    },
+                                    "useCache": {
+                                        "type": "boolean",
+                                        "description": "Reuse results from previous runs for identical requests. Cached results are free.",
+                                        "default": true
+                                    },
+                                    "cacheTtlHours": {
+                                        "type": "integer",
+                                        "description": "How long cached results stay valid. 0 disables the cross-run cache.",
+                                        "minimum": 0,
+                                        "maximum": 720,
+                                        "default": 24
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Results"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    },
+                    "402": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "responses": {
+            "Results": {
+                "description": "One row per domain or company, in the same format as the dataset items.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DomainSearchResult"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Error": {
+                "description": "Invalid input (400) or the run's max charge limit was reached (402).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "DomainSearchResult": {
+                "type": "object",
+                "properties": {
+                    "company": {
+                        "type": "string",
+                        "description": "Company name searched (company searches only)"
+                    },
+                    "domain": {
+                        "type": "string",
+                        "description": "Domain searched, or the domain Tomba resolved for a company"
+                    },
+                    "organization": {
+                        "type": "object",
+                        "description": "Company profile (when includeCompanyInfo is true)",
+                        "additionalProperties": true
+                    },
+                    "emails": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string"
+                                },
+                                "first_name": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "last_name": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "full_name": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "position": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "department": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "seniority": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "country": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "linkedin": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "phone_number": {
+                                    "type": "boolean"
+                                },
+                                "phone_data": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                },
+                                "score": {
+                                    "type": "integer"
+                                },
+                                "verification": {
+                                    "type": "object",
+                                    "additionalProperties": true
+                                },
+                                "sources": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            },
+                            "additionalProperties": true
+                        }
+                    },
+                    "phoneNumbers": {
+                        "type": "integer"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": true
+                    },
+                    "pages": {
+                        "type": "integer"
+                    },
+                    "chargedRequests": {
+                        "type": "integer"
+                    },
+                    "chargedCredits": {
+                        "type": "integer"
+                    },
+                    "charged": {
+                        "type": "boolean"
+                    },
+                    "cached": {
+                        "type": "boolean"
+                    },
+                    "error": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

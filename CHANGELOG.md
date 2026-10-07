@@ -25,6 +25,9 @@ All notable changes to this project will be documented in this file. See [standa
 - Resume after migration or restart
 - Domains are normalized and deduplicated
 - Each dataset item now includes `charged`, `cached`, `pages` and `chargedRequests`
+- Standby mode: real-time HTTP API (`GET /?domain=…` or `POST /` with the run input) with an OpenAPI web server schema
+- Key-value store schema for `INPUT`, `TOMBA_STATE` and `SUMMARY`
+- 256 MB default memory
 
 ### Dependencies
 

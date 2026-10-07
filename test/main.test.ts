@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { after, afterEach, describe, it } from 'node:test';
 
 import type { MockHandler, MockServer } from './helpers.js';
-import { removeStorage, runActor, startMockTomba, totalCharges } from './helpers.js';
+import { removeStorage, runActor, startMockTomba, startStandbyActor, totalCharges } from './helpers.js';
 
 function organization(domain: string) {
     return {
@@ -632,5 +632,135 @@ describe('domain-search', () => {
         const result = await run({ input: { domains: [] }, endpoint: server.url });
         assert.notEqual(result.code, 0);
         assert.equal(server.requests.length, 0);
+    });
+});
+
+describe('domain-search standby (real-time API)', () => {
+    it('answers the readiness probe and a bare GET with usage info', async () => {
+        const server = await mock();
+        const actor = await startStandbyActor({ endpoint: server.url });
+        try {
+            const probe = await actor.call('/', { headers: { 'x-apify-container-server-readiness-probe': '1' } });
+            assert.equal(probe.status, 200);
+            const usage = await actor.call('/');
+            assert.equal(usage.status, 200);
+            assert.match(String(usage.body.usage), /GET/);
+            assert.equal(server.requests.length, 0);
+        } finally {
+            await actor.stop();
+        }
+    });
+
+    it('searches domains and companies from GET query parameters and charges the credits per page', async () => {
+        const server = await mock();
+        const actor = await startStandbyActor({ endpoint: server.url });
+        let stopped;
+        try {
+            const res = await actor.call(
+                '/?domain=https://www.Stripe.com/pricing&domain=empty.com&company=Acme&limit=20&maxEmailsPerDomain=30&department=finance&country=US&includeCompanyInfo=false',
+            );
+            assert.equal(res.status, 200);
+            const items = res.body.items as Record<string, unknown>[];
+            const stripe = items.find((i) => i.domain === 'stripe.com');
+            // 25 emails: page 1 has 20, page 2 the last 5; each page of limit 20 costs 2 credits.
+            assert.equal((stripe?.emails as unknown[]).length, 25);
+            assert.equal(stripe?.pages, 2);
+            assert.equal(stripe?.chargedCredits, 4);
+            assert.equal(stripe?.organization, undefined);
+            const acme = items.find((i) => i.company === 'Acme');
+            assert.equal(acme?.domain, 'acme.com');
+            assert.equal(acme?.chargedCredits, 4);
+            assert.equal(items.find((i) => i.domain === 'empty.com')?.error, 'No results found');
+            const first = server.requests.find((r) => r.query.domain === 'stripe.com');
+            assert.equal(first?.query.department, 'finance');
+            assert.equal(first?.query.country, 'US');
+            assert.equal(first?.query.limit, '20');
+        } finally {
+            stopped = await actor.stop();
+        }
+        assert.deepEqual(stopped.chargeCounts, { 'tomba-request': 8 });
+    });
+
+    it('accepts a POST with the same JSON input as a normal run', async () => {
+        const server = await mock();
+        const actor = await startStandbyActor({ endpoint: server.url });
+        let stopped;
+        try {
+            const res = await actor.call('/', { body: { domains: ['phones.com'], enrichMobile: true } });
+            assert.equal(res.status, 200);
+            const [item] = res.body.items as Record<string, unknown>[];
+            assert.equal((item.emails as unknown[]).length, 10);
+            // 1 base credit + 5 per address with phone data (3 of 10).
+            assert.equal(item.phoneNumbers, 3);
+            assert.equal(item.chargedCredits, 16);
+            assert.equal(server.requests[0].query.enrich_mobile, 'true');
+        } finally {
+            stopped = await actor.stop();
+        }
+        assert.deepEqual(stopped.chargeCounts, { 'tomba-request': 16 });
+    });
+
+    it('serves repeated requests from the cache for free', async () => {
+        const server = await mock();
+        const actor = await startStandbyActor({ endpoint: server.url });
+        let stopped;
+        try {
+            await actor.call('/?domain=stripe.com');
+            const second = await actor.call('/?domain=stripe.com');
+            assert.ok((second.body.items as Record<string, unknown>[]).every((i) => i.cached === true));
+            assert.equal(server.requests.length, 1);
+        } finally {
+            stopped = await actor.stop();
+        }
+        assert.deepEqual(stopped.chargeCounts, { 'tomba-request': 1 });
+    });
+
+    it('keeps serving after a request stops at maxEmailsPerDomain', async () => {
+        const server = await mock();
+        const actor = await startStandbyActor({ endpoint: server.url });
+        try {
+            const first = await actor.call('/?domain=a.com&maxEmailsPerDomain=5');
+            const [a] = first.body.items as Record<string, unknown>[];
+            assert.equal((a.emails as unknown[]).length, 5);
+            const second = await actor.call('/?domains=b.com,c.com&maxEmailsPerDomain=15');
+            const items = second.body.items as Record<string, unknown>[];
+            assert.deepEqual(
+                items.map((i) => (i.emails as unknown[]).length),
+                [15, 15],
+            );
+        } finally {
+            await actor.stop();
+        }
+    });
+
+    it('rejects invalid input with 400 and unknown paths with 404', async () => {
+        const server = await mock();
+        const actor = await startStandbyActor({ endpoint: server.url });
+        try {
+            assert.equal((await actor.call('/', { body: {} })).status, 400);
+            assert.equal((await actor.call('/', { body: 'not json' })).status, 400);
+            assert.equal((await actor.call('/?page=abc&domain=a.com')).status, 400);
+            assert.equal((await actor.call('/?enrichMobile=maybe&domain=a.com')).status, 400);
+            assert.equal((await actor.call('/?webhookUrl=ftp://x&domain=a.com')).status, 400);
+            assert.equal((await actor.call('/nope')).status, 404);
+            assert.equal((await actor.call('/', { method: 'DELETE' })).status, 405);
+            assert.equal(server.requests.length, 0);
+        } finally {
+            await actor.stop();
+        }
+    });
+
+    it('returns 402 once the max charge limit is reached', async () => {
+        const server = await mock();
+        const actor = await startStandbyActor({ endpoint: server.url, maxTotalChargeUsd: 1 });
+        try {
+            const first = await actor.call('/?domain=a.com');
+            assert.equal(first.status, 200);
+            const second = await actor.call('/?domain=b.com');
+            assert.equal(second.status, 402);
+            assert.equal(server.requests.length, 1);
+        } finally {
+            await actor.stop();
+        }
     });
 });
