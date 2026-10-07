@@ -117,10 +117,12 @@ await runActor<ActorInput>({
             page: startPage = 1,
             limit = '10',
             department,
-            country,
+            country: rawCountry,
             enrichMobile = false,
             webhookUrl: rawWebhookUrl,
         } = input;
+        const country =
+            typeof rawCountry === 'string' && rawCountry.trim() ? rawCountry.trim().toUpperCase() : undefined;
 
         const domains = unique(
             (Array.isArray(rawDomains) ? rawDomains : []).filter((d) => typeof d === 'string').map(normalizeDomain),

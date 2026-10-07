@@ -3,7 +3,14 @@ import assert from 'node:assert/strict';
 import { after, afterEach, describe, it } from 'node:test';
 
 import type { MockHandler, MockServer } from './helpers.js';
-import { removeStorage, runActor, startMockTomba, startStandbyActor, totalCharges } from './helpers.js';
+import {
+    inputSchemaErrors,
+    removeStorage,
+    runActor,
+    startMockTomba,
+    startStandbyActor,
+    totalCharges,
+} from './helpers.js';
 
 function organization(domain: string) {
     return {
@@ -762,5 +769,11 @@ describe('domain-search standby (real-time API)', () => {
         } finally {
             await actor.stop();
         }
+    });
+});
+
+describe('input schema', () => {
+    it('accepts multi-part domains and lowercase country codes', () => {
+        assert.deepEqual(inputSchemaErrors({ domains: ['bbc.co.uk', 'https://blog.stripe.com/'], country: 'gb' }), []);
     });
 });

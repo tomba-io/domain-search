@@ -115,10 +115,10 @@
         "country": {
             "title": "Country Filter",
             "type": "string",
-            "description": "Two-letter country code to filter email addresses (e.g., 'US', 'UK', 'CA')",
+            "description": "Two-letter country code to filter email addresses (e.g. 'US', 'GB', 'CA'). Lowercase is accepted.",
             "maxLength": 2,
             "minLength": 2,
-            "pattern": "^[A-Z]{2}$",
+            "pattern": "^[A-Za-z]{2}$",
             "editor": "textfield"
         },
         "enrichMobile": {
